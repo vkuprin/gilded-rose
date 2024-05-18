@@ -4,7 +4,7 @@ import GildedRoseComponent from "../src/components/GildedRose";
 
 describe("GildedRoseComponent", () => {
     test("renders the initial items", () => {
-        render(<GildedRoseComponent />);
+        render(<GildedRoseComponent/>);
 
         expect(screen.getByText("Gilded Rose Inventory")).toBeInTheDocument();
         expect(screen.getByText("Aged Brie")).toBeInTheDocument();
@@ -14,9 +14,9 @@ describe("GildedRoseComponent", () => {
     });
 
     test("updates item qualities when 'Update Quality' button is clicked", () => {
-        render(<GildedRoseComponent />);
+        render(<GildedRoseComponent/>);
 
-        fireEvent.click(screen.getByRole("button", { name: /update inventory quality/i }));
+        fireEvent.click(screen.getByRole("button", {name: /update inventory quality/i}));
 
         const agedBrieElement = screen.getByText("Aged Brie").closest("li");
         expect(agedBrieElement).toHaveTextContent("1 days");
@@ -33,5 +33,27 @@ describe("GildedRoseComponent", () => {
         const backstagePassesElement = screen.getByText("Backstage passes to a TAFKAL80ETC concert").closest("li");
         expect(backstagePassesElement).toHaveTextContent("14 days");
         expect(backstagePassesElement).toHaveTextContent("Quality: 21");
+    });
+
+    test("quality does not drop below 0", () => {
+        render(<GildedRoseComponent/>);
+
+        for (let i = 0; i < 10; i++) {
+            fireEvent.click(screen.getByRole("button", {name: /update inventory quality/i}));
+        }
+
+        const conjuredManaCakeElement = screen.getByText("Conjured Mana Cake").closest("li");
+        expect(conjuredManaCakeElement).toHaveTextContent("Quality: 0");
+    });
+
+    test("backstage passes quality drops to 0 after concert", () => {
+        render(<GildedRoseComponent />);
+
+        for (let i = 0; i < 15; i++) {
+            fireEvent.click(screen.getByRole("button", { name: /update inventory quality/i }));
+        }
+
+        const backstagePassesElement = screen.getByText("Backstage passes to a TAFKAL80ETC concert").closest("li");
+        expect(backstagePassesElement).toHaveTextContent("Quality: 0");
     });
 });
